@@ -1,3 +1,4 @@
+ //Create tile layer for street maps
 var streets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
@@ -5,6 +6,7 @@ var streets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{
     accessToken: API_KEY
   });
 
+   //Create tile layer for sattelite street maps
   var satteliteStreets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
@@ -12,6 +14,7 @@ var streets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{
     accessToken: API_KEY
   });
 
+  //Create tile layer for dark maps
   var dark = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
@@ -79,9 +82,8 @@ legend.onAdd = function() {
 }
   return div;
 };
-
+//Adding the legend to the map
 legend.addTo(map);
-
 
 
 // This function determines the color of the circle based on the magnitude of the earthquake.
@@ -110,17 +112,18 @@ function getColor(magnitude) {
   }
   return "#98ee00";
 }
+
 // This function determines the radius of the earthquake marker based on its magnitude.
 // Earthquakes with a magnitude of 0 will be plotted with a radius of 1.
 
 //The scope of this fuction is changed and declared outside d3.json
 // to reuse the code for other functions
-  function getRadius(magnitude) {
-    if (magnitude === 0) {
-      return 1;
-    }
-    return magnitude * 4;
+function getRadius(magnitude) {
+  if (magnitude === 0) {
+    return 1;
   }
+  return magnitude * 4;
+}
 
 // Grabbing our GeoJSON earthquake data.
 d3.json(earthquakeData).then(function(data) {
@@ -140,18 +143,19 @@ d3.json(earthquakeData).then(function(data) {
     };
   }
 
-// Creating a GeoJSON layer with the retrieved data.
-L.geoJSON(data,{
-  pointToLayer: function(feature,latlng) {
-    return L.circleMarker(latlng);
-  },
-  style:styleInfo,
-  onEachFeature: function(feature,layer) {
-    layer.bindPopup("Magnitude: " + feature.properties.mag + "<br>Location: " + feature.properties.place);
-  }
-}).addTo(earthquakes);
+  // Creating a GeoJSON layer with the retrieved data.
+  L.geoJSON(data,{
+    pointToLayer: function(feature,latlng) {
+      return L.circleMarker(latlng);
+    },
+    style:styleInfo,
+    onEachFeature: function(feature,layer) {
+      layer.bindPopup("Magnitude: " + feature.properties.mag + "<br>Location: " + feature.properties.place);
+    }
+  }).addTo(earthquakes);
 
-earthquakes.addTo(map);
+  earthquakes.addTo(map);
+
 });
 
 //creating the style for techtonic plates
@@ -161,44 +165,49 @@ let lineStyle = {
   weight: 3,
   
 }
-  // 3. Use d3.json to make a call to get our Tectonic Plate geoJSON data.
-  d3.json(techtonicData).then(function(data) {
-    console.log(data);
-    L.geoJSON(data,{
-      pointToLayer: function(feature,latlng) {
-        return L.polyline(latlng);
-      },
-      style:lineStyle
-    }).addTo(techtonicPlates);
+// 3. Use d3.json to make a call to get our Tectonic Plate geoJSON data.
+d3.json(techtonicData).then(function(data) {
 
-    techtonicPlates.addTo(map);
-  });
+  // Creating a GeoJSON layer with the retrieved data.
+  L.geoJSON(data,{
+    pointToLayer: function(feature,latlng) {
+      return L.polyline(latlng);
+    },
+    style:lineStyle
+  }).addTo(techtonicPlates);
+
+  techtonicPlates.addTo(map);
+});
 
 // Grabbing our GeoJSON major earthquakes  data.
-  d3.json(majorEQdata).then(function(data) {
+d3.json(majorEQdata).then(function(data) {
 
-    function styleInfo(feature) {
-      return {
-        opacity: 1,
-        fillOpacity: 1,
-        fillColor: getColor(feature.properties.mag),
-        color: "#000000",
-        radius: getRadius(feature.properties.mag),
-        stroke: true,
-        weight: 0.5
-      };
+  // This function returns the style data for each of the earthquakes we plot on
+  // the map. We pass the magnitude of the earthquake into a function
+  // to calculate the radius. 
+  function styleInfo(feature) {
+    return {
+      opacity: 1,
+      fillOpacity: 1,
+      fillColor: getColor(feature.properties.mag),
+      color: "#000000",
+      radius: getRadius(feature.properties.mag),
+      stroke: true,
+      weight: 0.5
+    };
+  }
+
+  // Creating a GeoJSON layer with the retrieved data.
+  L.geoJSON(data,{
+    pointToLayer: function(feature,latlng) {
+      return L.circleMarker(latlng);
+    },
+    style:styleInfo,
+    onEachFeature: function(feature,layer) {
+      layer.bindPopup("Magnitude: " + feature.properties.mag + "<br>Location: " + feature.properties.place);
     }
+  }).addTo(majorEQ);
 
-    L.geoJSON(data,{
-      pointToLayer: function(feature,latlng) {
-        return L.circleMarker(latlng);
-      },
-      style:styleInfo,
-      onEachFeature: function(feature,layer) {
-        layer.bindPopup("Magnitude: " + feature.properties.mag + "<br>Location: " + feature.properties.place);
-      }
-    }).addTo(majorEQ);
-
-    majorEQ.addTo(map);
-  })
+  majorEQ.addTo(map);
+})
 

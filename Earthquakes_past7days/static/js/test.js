@@ -115,12 +115,31 @@ function getColor(magnitude) {
 
 //The scope of this fuction is changed and declared outside d3.json
 // to reuse the code for other functions
-  function getRadius(magnitude) {
-    if (magnitude === 0) {
-      return 1;
-    }
-    return magnitude * 4;
+function getRadius(magnitude) {
+  if (magnitude === 0) {
+    return 1;
   }
+  return magnitude * 5;
+}
+// This function returns the style data for each of the earthquakes we plot on
+// the map. We pass the magnitude of the earthquake into a function
+// to calculate the radius. 
+
+//The scope of this fuction is changed and declared outside d3.json
+// to reuse the code for other functions
+function styleInfo(mag) {
+  console.log(mag);
+  return {
+    opacity: 1,
+    fillOpacity: 1,
+    fillColor: getColor(mag),
+    color: "#000000",
+    radius: getRadius(mag),
+    stroke: true,
+    weight: 0.5
+  };
+}
+
 
 // Grabbing our GeoJSON earthquake data.
 d3.json(earthquakeData).then(function(data) {
@@ -128,27 +147,20 @@ d3.json(earthquakeData).then(function(data) {
   // This function returns the style data for each of the earthquakes we plot on
   // the map. We pass the magnitude of the earthquake into a function
   // to calculate the radius. 
-  function styleInfo(feature) {
-    return {
-      opacity: 1,
-      fillOpacity: 1,
-      fillColor: getColor(feature.properties.mag),
-      color: "#000000",
-      radius: getRadius(feature.properties.mag),
-      stroke: true,
-      weight: 0.5
-    };
-  }
 
 // Creating a GeoJSON layer with the retrieved data.
+var magdata=0;
 L.geoJSON(data,{
+  
   pointToLayer: function(feature,latlng) {
     return L.circleMarker(latlng);
   },
-  style:styleInfo,
+ 
   onEachFeature: function(feature,layer) {
     layer.bindPopup("Magnitude: " + feature.properties.mag + "<br>Location: " + feature.properties.place);
-  }
+    magdata=feature.properties.mag;
+  },
+  style:styleInfo(magdata )
 }).addTo(earthquakes);
 
 earthquakes.addTo(map);
@@ -163,7 +175,6 @@ let lineStyle = {
 }
   // 3. Use d3.json to make a call to get our Tectonic Plate geoJSON data.
   d3.json(techtonicData).then(function(data) {
-    console.log(data);
     L.geoJSON(data,{
       pointToLayer: function(feature,latlng) {
         return L.polyline(latlng);
@@ -176,27 +187,17 @@ let lineStyle = {
 
 // Grabbing our GeoJSON major earthquakes  data.
   d3.json(majorEQdata).then(function(data) {
-
-    function styleInfo(feature) {
-      return {
-        opacity: 1,
-        fillOpacity: 1,
-        fillColor: getColor(feature.properties.mag),
-        color: "#000000",
-        radius: getRadius(feature.properties.mag),
-        stroke: true,
-        weight: 0.5
-      };
-    }
-
+    var magdata=0;
     L.geoJSON(data,{
       pointToLayer: function(feature,latlng) {
         return L.circleMarker(latlng);
       },
-      style:styleInfo,
+      
       onEachFeature: function(feature,layer) {
         layer.bindPopup("Magnitude: " + feature.properties.mag + "<br>Location: " + feature.properties.place);
-      }
+        magdata=feature.properties.mag;
+      },
+      style:styleInfo(magdata )
     }).addTo(majorEQ);
 
     majorEQ.addTo(map);
